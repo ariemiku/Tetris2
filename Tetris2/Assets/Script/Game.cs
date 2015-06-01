@@ -8,11 +8,44 @@ public enum eStatus{
 	eGameover,
 };
 
+// 色
+/*
+public enum eColor{
+	eRed,
+	eBlue,
+	eLightBlue,
+	eYello,
+	eYelloGreen,
+	ePurple,
+	eOrange,
+	None,
+};
+
+class Block{
+	GameObject block;
+	eColor color;
+	Vector2 position;
+}
+*/
+
 public class Game : MonoBehaviour {
+	public static readonly int WIDTH = 10;		// 幅
+	public static readonly int HEIGHT = 20;		// 高さ
+
 	private eStatus m_Status;
+	
+	GameObject[,] block=new GameObject[HEIGHT,WIDTH]; 
 	
 	// Use this for initialization
 	void Start () {
+		// 20*10ブロックの作成
+		for (int i=0; i<HEIGHT; i++) {
+			for(int j=0;j<WIDTH;j++){
+				block[i,j] = GameObject.CreatePrimitive(PrimitiveType.Cube);
+				block[i,j].transform.position = new Vector3(-(WIDTH/2)+j,-(HEIGHT/2)+i,0.0f);
+			}
+		}
+
 		m_Status = eStatus.eTutorial;
 		Transit (m_Status);
 	}
