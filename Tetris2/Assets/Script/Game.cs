@@ -291,6 +291,7 @@ public class Game : MonoBehaviour {
 
 	Block[,] nextTetrimino = new Block[5,5];
 	eTetriminoType nextTetrimonoType;
+	int m_shiftNum=0;
 
 	public float timer = 0.0f;
 	float downLAndRKeyTime = 0.0f;
@@ -646,6 +647,120 @@ public class Game : MonoBehaviour {
 		}
 	}
 
+	bool RotateCheck(Vector2 movedPos){
+		for (int i=4; i>=0; i--) {
+			for(int j=0;j<5;j++){
+				switch(myTetrimonoType){
+				case eTetriminoType.OTetrimino:
+					if(O_Tetrimino[myTetriminoState,i,j]==1){
+						if((int)movedPos.x+j >= WIDTH){
+							m_shiftNum=((int)movedPos.x+j)-(WIDTH-1);
+							return true;
+						}
+						else if((int)movedPos.x+j < 0){
+							m_shiftNum=(int)movedPos.x+j;
+							return true;
+						}
+					}
+					break;
+				case eTetriminoType.ITetrimino:
+					if(I_Tetrimino[myTetriminoState,i,j]==1){
+						if((int)movedPos.x+j >= WIDTH){
+							if(myTetriminoState!=1)
+								m_shiftNum=((int)movedPos.x+j)-(WIDTH-1);
+							else
+								m_shiftNum=((int)movedPos.x+j)-(WIDTH-1)+1;
+
+							return true;
+						}
+						else if((int)movedPos.x+j < 0){
+							m_shiftNum=(int)movedPos.x+j;
+							return true;
+						}
+					}
+					break;
+				case eTetriminoType.STetrimino:
+					if(S_Tetrimino[myTetriminoState,i,j]==1){
+						if((int)movedPos.x+j >= WIDTH){
+							m_shiftNum=((int)movedPos.x+j)-(WIDTH-1);
+							return true;
+						}
+						else if((int)movedPos.x+j < 0){
+							m_shiftNum=(int)movedPos.x+j;
+							return true;
+						}
+					}
+					break;
+				case eTetriminoType.ZTetrimino:
+					if(Z_Tetrimino[myTetriminoState,i,j]==1){
+						if((int)movedPos.x+j >= WIDTH){
+							m_shiftNum=((int)movedPos.x+j)-(WIDTH-1);
+							return true;
+						}
+						else if((int)movedPos.x+j < 0){
+							m_shiftNum=(int)movedPos.x+j;
+							return true;
+						}
+					}
+					break;
+				case eTetriminoType.JTetrimino:
+					if(J_Tetrimino[myTetriminoState,i,j]==1){
+						if((int)movedPos.x+j >= WIDTH){
+							m_shiftNum=((int)movedPos.x+j)-(WIDTH-1);
+							return true;
+						}
+						else if((int)movedPos.x+j < 0){
+							m_shiftNum=(int)movedPos.x+j;
+							return true;
+						}
+					}
+					break;
+				case eTetriminoType.LTetrimino:
+					if(L_Tetrimino[myTetriminoState,i,j]==1){
+						if((int)movedPos.x+j >= WIDTH){
+							m_shiftNum=((int)movedPos.x+j)-(WIDTH-1);
+							return true;
+						}
+						else if((int)movedPos.x+j < 0){
+							m_shiftNum=(int)movedPos.x+j;
+							return true;
+						}
+					}
+					break;
+				case eTetriminoType.TTetrimino:
+					if(T_Tetrimino[myTetriminoState,i,j]==1){
+						if((int)movedPos.x+j >= WIDTH){
+							m_shiftNum=((int)movedPos.x+j)-(WIDTH-1);
+							return true;
+						}
+						else if((int)movedPos.x+j < 0){
+							m_shiftNum=(int)movedPos.x+j;
+							return true;
+						}
+					}
+					break;
+				}
+			}
+		}
+		m_shiftNum = 0;
+		return false;
+	}
+
+	// 回転時ブロック同士が衝突する時どれだけずらすか設定する関数
+	void SetShiftNum(){
+		switch(myTetrimonoType){
+		case eTetriminoType.ITetrimino:
+			if(myTetriminoState==1 || myTetriminoState==3)
+				m_shiftNum=2;
+			else
+				m_shiftNum=1;
+			break;
+		default:
+			m_shiftNum=1;
+			break;
+		}
+	}
+
 	// 回転処理を行う関数
 	void RotateBlock(eKeyCode keyCode = eKeyCode.None){
 		int moveStateNum = 0;
@@ -656,7 +771,6 @@ public class Game : MonoBehaviour {
 
 			if (moveStateNum + myTetriminoState < 0) {
 				moveStateNum=3;
-				//myTetriminoState=3;
 			}
 			else{
 				moveStateNum = myTetriminoState + moveStateNum;
@@ -668,7 +782,6 @@ public class Game : MonoBehaviour {
 
 			if(moveStateNum + myTetriminoState > 3){
 				moveStateNum=0;
-				//myTetriminoState=0;
 			}
 			else{
 				moveStateNum = myTetriminoState + moveStateNum;
@@ -680,13 +793,38 @@ public class Game : MonoBehaviour {
 
 		int frontStateNum = myTetriminoState;
 		myTetriminoState = moveStateNum;
+		// 回転後ブロックにぶつからないか調べる
 		if (!CheckHit (myPos)) {
-			//myTetriminoState += moveStateNum;
-			ClearState ();
-			SetBlock ();
+			RotateCheck (myPos);
+
+			if (m_shiftNum == 0 || !CheckHit (new Vector2 (myPos.x - m_shiftNum, myPos.y))){
+				myPos.x -= m_shiftNum;
+				ClearState ();
+				SetBlock ();
+			}
+			// 回転不可能
+			else{
+				myTetriminoState = frontStateNum;
+			}
 		}
 		else {
-			myTetriminoState = frontStateNum;
+			// 回転すると当たってしまうが、ずらした場合に回転できるか調べる
+			SetShiftNum();
+			if(!CheckHit (new Vector2(myPos.x-m_shiftNum,myPos.y))){
+				myPos.x -= m_shiftNum;
+				ClearState ();
+				SetBlock ();
+			}
+			else if(!CheckHit (new Vector2(myPos.x+m_shiftNum,myPos.y))){
+				myPos.x += m_shiftNum;
+				ClearState ();
+				SetBlock ();
+			}
+			// 回転不可能
+			else{
+				myTetriminoState = frontStateNum;
+				m_shiftNum=0;
+			}
 		}
 	}
 
@@ -697,7 +835,6 @@ public class Game : MonoBehaviour {
 		// 自分の初期位置（仮）
 		myPos = new Vector2 (3,-4);
 		SetBlock();
-
 	}
 
 	void StartGameover(eStatus PrevStatus){
