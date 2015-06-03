@@ -101,6 +101,174 @@ public class Game : MonoBehaviour {
 	public static readonly int WIDTH = 10;		// 幅
 	public static readonly int HEIGHT = 20;		// 高さ
 
+	public static readonly int[,,] O_Tetrimino = new int [,,]{{{0,0,0,0,0},
+																{0,0,0,0,0},						
+																{0,1,1,0,0},
+																{0,1,1,0,0},
+																{0,0,0,0,0}},
+																
+																{{0,0,0,0,0},
+																{0,1,1,0,0},
+																{0,1,1,0,0},
+																{0,0,0,0,0},
+																{0,0,0,0,0}},
+															
+																{{0,0,0,0,0},
+																{0,0,1,1,0},
+																{0,0,1,1,0},
+																{0,0,0,0,0},
+																{0,0,0,0,0}},
+															
+																{{0,0,0,0,0},
+																{0,0,0,0,0},
+																{0,0,1,1,0},
+																{0,0,1,1,0},
+																{0,0,0,0,0}}};
+
+	public static readonly int[,,] I_Tetrimino = new int [,,]{{{0,0,1,0,0},
+																{0,0,1,0,0},
+																{0,0,1,0,0},
+																{0,0,1,0,0},
+																{0,0,0,0,0}},
+
+																{{0,0,0,0,0},
+																{0,0,0,0,0},
+																{0,1,1,1,1},
+																{0,0,0,0,0},
+																{0,0,0,0,0}},
+
+																{{0,0,0,0,0},
+																{0,0,1,0,0},
+																{0,0,1,0,0},
+																{0,0,1,0,0},
+																{0,0,1,0,0}},
+
+																{{0,0,0,0,0},
+																{0,0,0,0,0},
+																{1,1,1,1,0},
+																{0,0,0,0,0},
+																{0,0,0,0,0}}};
+	
+	public static readonly int[,,] S_Tetrimino = new int [,,]{{{0,0,0,0,0},
+																{0,0,0,0,0},
+																{0,0,1,1,0},
+																{0,1,1,0,0},
+																{0,0,0,0,0}},
+		
+																{{0,0,0,0,0},
+																{0,1,0,0,0},
+																{0,1,1,0,0},
+																{0,0,1,0,0},
+																{0,0,0,0,0}},
+																
+																{{0,0,0,0,0},
+																{0,0,1,1,0},
+																{0,1,1,0,0},
+																{0,0,0,0,0},
+																{0,0,0,0,0}},
+																
+																{{0,0,0,0,0},
+																{0,0,1,0,0},
+																{0,0,1,1,0},
+																{0,0,0,1,0},
+																{0,0,0,0,0}}};
+	
+	public static readonly int[,,] Z_Tetrimino = new int [,,]{{{0,0,0,0,0},
+																{0,0,0,0,0},
+																{0,1,1,0,0},
+																{0,0,1,1,0},
+																{0,0,0,0,0}},
+		
+																{{0,0,0,0,0},
+																{0,0,1,0,0},
+																{0,1,1,0,0},
+																{0,1,0,0,0},
+																{0,0,0,0,0}},
+																
+																{{0,0,0,0,0},
+																{0,1,1,0,0},
+																{0,0,1,1,0},
+																{0,0,0,0,0},
+																{0,0,0,0,0}},
+															
+																{{0,0,0,0,0},
+																{0,0,0,1,0},
+																{0,0,1,1,0},
+																{0,0,1,0,0},
+																{0,0,0,0,0}}};
+
+	public static readonly int[,,] J_Tetrimino = new int [,,]{{{0,0,0,0,0},
+																{0,0,1,0,0},
+																{0,0,1,0,0},
+																{0,1,1,0,0},
+																{0,0,0,0,0}},
+		
+																{{0,0,0,0,0},
+																{0,1,0,0,0},
+																{0,1,1,1,0},
+																{0,0,0,0,0},
+																{0,0,0,0,0}},
+		
+																{{0,0,0,0,0},
+																{0,0,1,1,0},
+																{0,0,1,0,0},
+																{0,0,1,0,0},
+																{0,0,0,0,0}},
+															
+																{{0,0,0,0,0},
+																{0,0,0,0,0},
+																{0,1,1,1,0},
+																{0,0,0,1,0},
+																{0,0,0,0,0}}};
+	
+	public static readonly int[,,] L_Tetrimino = new int [,,]{{{0,0,0,0,0},
+																{0,0,1,0,0},
+																{0,0,1,0,0},
+																{0,0,1,1,0},
+																{0,0,0,0,0}},
+																
+																{{0,0,0,0,0},
+																{0,0,0,0,0},
+																{0,1,1,1,0},
+																{0,1,0,0,0},
+																{0,0,0,0,0}},
+																
+																{{0,0,0,0,0},
+																{0,1,1,0,0},
+																{0,0,1,0,0},
+																{0,0,1,0,0},
+																{0,0,0,0,0}},
+															
+																{{0,0,0,0,0},
+																{0,0,0,1,0},
+																{0,1,1,1,0},
+																{0,0,0,0,0},
+																{0,0,0,0,0}}};
+															
+	public static readonly int[,,] T_Tetrimino = new int [,,]{{{0,0,0,0,0},
+																{0,0,0,0,0},
+																{0,1,1,1,0},
+																{0,0,1,0,0},
+																{0,0,0,0,0}},
+															
+																{{0,0,0,0,0},
+																{0,0,1,0,0},
+																{0,1,1,0,0},
+																{0,0,1,0,0},
+																{0,0,0,0,0}},
+																
+																{{0,0,0,0,0},
+																{0,0,1,0,0},
+																{0,1,1,1,0},
+																{0,0,0,0,0},
+																{0,0,0,0,0}},
+																
+																{{0,0,0,0,0},
+																{0,0,1,0,0},
+																{0,0,1,1,0},
+																{0,0,1,0,0},
+																{0,0,0,0,0}}};
+	/*
 	public static readonly int[,] O_Tetrimino = new int [,]{{0,0,0,0,0},
 															{0,0,0,0,0},						
 															{0,1,1,0,0},
@@ -142,7 +310,7 @@ public class Game : MonoBehaviour {
 															{0,1,1,1,0},
 															{0,0,1,0,0},
 															{0,0,0,0,0}};
-
+*/
 
 
 
@@ -165,6 +333,7 @@ public class Game : MonoBehaviour {
 
 	eTetriminoType myTetrimonoType;
 	Vector2 myPos;
+	int myTetriminoState=0;
 
 	Block[,] nextTetrimino = new Block[5,5];
 	eTetriminoType nextTetrimonoType;
@@ -207,7 +376,6 @@ public class Game : MonoBehaviour {
 		m_KeyCode = eKeyCode.eNone;
 		m_Status = eStatus.eTutorial;
 		Transit (m_Status);
-
 	}
 
 	// ランダムにテトリミノをセット
@@ -228,37 +396,37 @@ public class Game : MonoBehaviour {
 
 				switch(nextTetrimonoType){
 				case eTetriminoType.eO_Tetrimino:
-					if(O_Tetrimino[i,j]==1){
+					if(O_Tetrimino[myTetriminoState,i,j]==1){
 						nextTetrimino[i,j].SetColor(yello);
 					}
 					break;
 				case eTetriminoType.eI_Tetrimino:
-					if(I_Tetrimino[i,j]==1){
+					if(I_Tetrimino[myTetriminoState,i,j]==1){
 						nextTetrimino[i,j].SetColor(lightBlue);
 					}
 					break;
 				case eTetriminoType.eS_Tetrimino:
-					if(S_Tetrimino[i,j]==1){
+					if(S_Tetrimino[myTetriminoState,i,j]==1){
 						nextTetrimino[i,j].SetColor(yelloGreen);
 					}
 					break;
 				case eTetriminoType.eZ_Tetrimino:
-					if(Z_Tetrimino[i,j]==1){
+					if(Z_Tetrimino[myTetriminoState,i,j]==1){
 						nextTetrimino[i,j].SetColor(red);
 					}
 					break;
 				case eTetriminoType.eJ_Tetrimino:
-					if(J_Tetrimino[i,j]==1){
+					if(J_Tetrimino[myTetriminoState,i,j]==1){
 						nextTetrimino[i,j].SetColor(blue);
 					}
 					break;
 				case eTetriminoType.eL_Tetrimino:
-					if(L_Tetrimino[i,j]==1){
+					if(L_Tetrimino[myTetriminoState,i,j]==1){
 						nextTetrimino[i,j].SetColor(orange);
 					}
 					break;
 				case eTetriminoType.eT_Tetrimino:
-					if(T_Tetrimino[i,j]==1){
+					if(T_Tetrimino[myTetriminoState,i,j]==1){
 						nextTetrimino[i,j].SetColor(purple);
 					}
 					break;
@@ -333,44 +501,44 @@ public class Game : MonoBehaviour {
 			for(int j=0;j<5;j++){
 				switch(myTetrimonoType){
 				case eTetriminoType.eO_Tetrimino:
-					if(O_Tetrimino[i,j]==1 && (int)movedPos.y+i >= 0 &&
-					   m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd){
+					if(O_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i >= 0 && (int)movedPos.x+j >= 0 && (int)movedPos.x+j < WIDTH &&
+					   (((int)movedPos.y+i >= HEIGHT) || m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd)){
 							return true;
 					}
 					break;
 				case eTetriminoType.eI_Tetrimino:
-					if(I_Tetrimino[i,j]==1 && (int)movedPos.y+i >= 0 && 
-					   m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd){
+					if(I_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i >= 0 && (int)movedPos.x+j >= 0 && (int)movedPos.x+j < WIDTH && 
+					   (((int)movedPos.y+i >= HEIGHT) || m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd)){
 						return true;
 					}
 					break;
 				case eTetriminoType.eS_Tetrimino:
-					if(S_Tetrimino[i,j]==1 && (int)movedPos.y+i >= 0 &&
-					   m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd){
+					if(S_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i >= 0 && (int)movedPos.x+j >= 0 && (int)movedPos.x+j < WIDTH &&
+					   (((int)movedPos.y+i >= HEIGHT) || m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd)){
 						return true;
 					}
 					break;
 				case eTetriminoType.eZ_Tetrimino:
-					if(Z_Tetrimino[i,j]==1 && (int)movedPos.y+i >= 0 && 
-					   m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd){
+					if(Z_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i >= 0 && (int)movedPos.x+j >= 0 && (int)movedPos.x+j < WIDTH &&
+					   (((int)movedPos.y+i >= HEIGHT) || m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd)){
 						return true;
 					}
 					break;
 				case eTetriminoType.eJ_Tetrimino:
-					if(J_Tetrimino[i,j]==1 && (int)movedPos.y+i >= 0 &&
-					   m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd){
+					if(J_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i >= 0 && (int)movedPos.x+j >= 0 && (int)movedPos.x+j < WIDTH &&
+					   (((int)movedPos.y+i >= HEIGHT) || m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd)){
 						return true;
 					}
 					break;
 				case eTetriminoType.eL_Tetrimino:
-					if(L_Tetrimino[i,j]==1 && (int)movedPos.y+i >= 0 && 
-					   m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd){
+					if(L_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i >= 0 && (int)movedPos.x+j >= 0 && (int)movedPos.x+j < WIDTH && 
+					   (((int)movedPos.y+i >= HEIGHT) || m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd)){
 						return true;
 					}
 					break;
 				case eTetriminoType.eT_Tetrimino:
-					if(T_Tetrimino[i,j]==1 && (int)movedPos.y+i >= 0 && 
-					   m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd){
+					if(T_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i >= 0 && (int)movedPos.x+j >= 0 && (int)movedPos.x+j < WIDTH && 
+					   (((int)movedPos.y+i >= HEIGHT) || m_blockState[(int)movedPos.y+i,(int)movedPos.x+j]==eBlockState.eUesd)){
 						return true;
 					}
 					break;
@@ -386,43 +554,43 @@ public class Game : MonoBehaviour {
 			for(int j=0;j<5;j++){
 				switch(myTetrimonoType){
 				case eTetriminoType.eO_Tetrimino:
-					if(O_Tetrimino[i,j]==1 && 
+					if(O_Tetrimino[myTetriminoState,i,j]==1 && 
 					   (((int)movedPos.x+j >= WIDTH) || ((int)movedPos.x+j < 0))){
 						return true;
 					}
 					break;
 				case eTetriminoType.eI_Tetrimino:
-					if(I_Tetrimino[i,j]==1 && 
+					if(I_Tetrimino[myTetriminoState,i,j]==1 && 
 					   (((int)movedPos.x+j >= WIDTH) || ((int)movedPos.x+j < 0))){
 						return true;
 					}
 					break;
 				case eTetriminoType.eS_Tetrimino:
-					if(S_Tetrimino[i,j]==1 && 
+					if(S_Tetrimino[myTetriminoState,i,j]==1 && 
 					   (((int)movedPos.x+j >= WIDTH) || ((int)movedPos.x+j < 0))){
 						return true;
 					}
 					break;
 				case eTetriminoType.eZ_Tetrimino:
-					if(Z_Tetrimino[i,j]==1 && 
+					if(Z_Tetrimino[myTetriminoState,i,j]==1 && 
 					   (((int)movedPos.x+j >= WIDTH) || ((int)movedPos.x+j < 0))){
 						return true;
 					}
 					break;
 				case eTetriminoType.eJ_Tetrimino:
-					if(J_Tetrimino[i,j]==1 && 
+					if(J_Tetrimino[myTetriminoState,i,j]==1 && 
 					   (((int)movedPos.x+j >= WIDTH) || ((int)movedPos.x+j < 0))){
 						return true;
 					}
 					break;
 				case eTetriminoType.eL_Tetrimino:
-					if(L_Tetrimino[i,j]==1 && 
+					if(L_Tetrimino[myTetriminoState,i,j]==1 && 
 					   (((int)movedPos.x+j >= WIDTH) || ((int)movedPos.x+j < 0))){
 						return true;
 					}
 					break;
 				case eTetriminoType.eT_Tetrimino:
-					if(T_Tetrimino[i,j]==1 && 
+					if(T_Tetrimino[myTetriminoState,i,j]==1 && 
 					   (((int)movedPos.x+j >= WIDTH) || ((int)movedPos.x+j < 0))){
 						return true;
 					}
@@ -439,43 +607,50 @@ public class Game : MonoBehaviour {
 			for(int j=0;j<5;j++){
 					switch(myTetrimonoType){
 					case eTetriminoType.eO_Tetrimino:
-					if(O_Tetrimino[i,j]==1 && (int)myPos.y+i >= 0){
+					if(O_Tetrimino[myTetriminoState,i,j]==1 && (int)myPos.y+i >= 0 &&
+					   ((int)myPos.x+j >= 0 && (int)myPos.x+j < WIDTH)){
 						block[(int)myPos.y+i,(int)myPos.x+j].SetColor(yello);
 						m_blockState[(int)myPos.y+i,(int)myPos.x+j]=eBlockState.eUsing;
 					}
 						break;
 					case eTetriminoType.eI_Tetrimino:
-					if(I_Tetrimino[i,j]==1 && (int)myPos.y+i >= 0){
+					if(I_Tetrimino[myTetriminoState,i,j]==1 && (int)myPos.y+i >= 0 &&
+					   ((int)myPos.x+j >= 0 && (int)myPos.x+j < WIDTH)){
 						block[(int)myPos.y+i,(int)myPos.x+j].SetColor(lightBlue);
 						m_blockState[(int)myPos.y+i,(int)myPos.x+j]=eBlockState.eUsing;
 					}
 						break;
 					case eTetriminoType.eS_Tetrimino:
-					if(S_Tetrimino[i,j]==1 && (int)myPos.y+i >= 0){
+					if(S_Tetrimino[myTetriminoState,i,j]==1 && (int)myPos.y+i >= 0 &&
+					   ((int)myPos.x+j >= 0 && (int)myPos.x+j < WIDTH)){
 						block[(int)myPos.y+i,(int)myPos.x+j].SetColor(yelloGreen);
 						m_blockState[(int)myPos.y+i,(int)myPos.x+j]=eBlockState.eUsing;
 					}
 						break;
 					case eTetriminoType.eZ_Tetrimino:
-					if(Z_Tetrimino[i,j]==1 && (int)myPos.y+i >= 0){
+					if(Z_Tetrimino[myTetriminoState,i,j]==1 && (int)myPos.y+i >= 0 &&
+					   ((int)myPos.x+j >= 0 && (int)myPos.x+j < WIDTH)){
 						block[(int)myPos.y+i,(int)myPos.x+j].SetColor(red);
 						m_blockState[(int)myPos.y+i,(int)myPos.x+j]=eBlockState.eUsing;
 					}
 						break;
 					case eTetriminoType.eJ_Tetrimino:
-					if(J_Tetrimino[i,j]==1 && (int)myPos.y+i >= 0){
+					if(J_Tetrimino[myTetriminoState,i,j]==1 && (int)myPos.y+i >= 0 &&
+					   ((int)myPos.x+j >= 0 && (int)myPos.x+j < WIDTH)){
 						block[(int)myPos.y+i,(int)myPos.x+j].SetColor(blue);
 						m_blockState[(int)myPos.y+i,(int)myPos.x+j]=eBlockState.eUsing;
 					}
 						break;
 					case eTetriminoType.eL_Tetrimino:
-					if(L_Tetrimino[i,j]==1 && (int)myPos.y+i >= 0){
+					if(L_Tetrimino[myTetriminoState,i,j]==1 && (int)myPos.y+i >= 0 &&
+					   ((int)myPos.x+j >= 0 && (int)myPos.x+j < WIDTH)){
 						block[(int)myPos.y+i,(int)myPos.x+j].SetColor(orange);
 						m_blockState[(int)myPos.y+i,(int)myPos.x+j]=eBlockState.eUsing;
 					}
 						break;
 					case eTetriminoType.eT_Tetrimino:
-					if(T_Tetrimino[i,j]==1 && (int)myPos.y+i >= 0){
+					if(T_Tetrimino[myTetriminoState,i,j]==1 && (int)myPos.y+i >= 0 &&
+					   ((int)myPos.x+j >= 0 && (int)myPos.x+j < WIDTH)){
 						block[(int)myPos.y+i,(int)myPos.x+j].SetColor(purple);
 						m_blockState[(int)myPos.y+i,(int)myPos.x+j]=eBlockState.eUsing;
 					}
@@ -517,6 +692,37 @@ public class Game : MonoBehaviour {
 		}
 	}
 
+	//
+	void RotateBlock(eKeyCode keyCode = eKeyCode.eNone){
+		int moveStateNum = 0;
+		switch (keyCode) {
+			// Zが押された場合（左回転）
+		case eKeyCode.eZKeyCode:
+			moveStateNum = -1;
+
+			if (moveStateNum + myTetriminoState < 0) {
+				moveStateNum=0;
+				myTetriminoState=3;
+			}
+			break;
+			// Xが押された場合（右回転）
+		case eKeyCode.eXKeyCode:
+			moveStateNum = 1;
+
+			if(moveStateNum + myTetriminoState > 3){
+				moveStateNum=0;
+				myTetriminoState=0;
+			}
+			break;
+		default:
+			break;
+		}
+
+		myTetriminoState += moveStateNum;
+		ClearState ();
+		SetBlock();
+	}
+
 	void StartPlay(eStatus PrevStatus){
 		// 代わった時に1回しかやらないことをする
 		Debug.Log ("Play");
@@ -547,8 +753,7 @@ public class Game : MonoBehaviour {
 
 		// 自然落下処理
 		if (!Input.GetKey (KeyCode.DownArrow) &&
-		    (timer > 1.0f && ((int)myPos.y < HEIGHT - 4 ||
-		    !CheckHit (new Vector2 (myPos.x, myPos.y + 1))))) {
+		    (timer > 1.0f && !CheckHit (new Vector2 (myPos.x, myPos.y + 1)))) {
 			timer=0.0f;
 			ClearState ();
 			myPos.y+=1;
@@ -556,7 +761,7 @@ public class Game : MonoBehaviour {
 		}
 
 		// 一番下についた時またはブロックが下にあった場合の積む処理
-		if ((int)myPos.y >= HEIGHT - 4 || CheckHit (new Vector2 (myPos.x, myPos.y + 1))) {
+		if (CheckHit (new Vector2 (myPos.x, myPos.y + 1))) {
 			timer=0.0f;
 
 			for (int i=4; i>=0; i--) {
@@ -573,6 +778,7 @@ public class Game : MonoBehaviour {
 			DrawNextTetrimino();
 			// 初期位置に戻す
 			myPos = new Vector2 (3,-4);
+			myTetriminoState=0;
 		}
 
 		// RightArrowキーで右へ移動
@@ -605,6 +811,16 @@ public class Game : MonoBehaviour {
 			}
 		}
 
+		// Xキーで右回転を行う
+		if (Input.GetKeyDown (KeyCode.X)) {
+			RotateBlock(eKeyCode.eXKeyCode);
+		}
+
+		// Zキーで左回転を行う
+		if (Input.GetKeyDown (KeyCode.Z)) {
+			RotateBlock(eKeyCode.eZKeyCode);
+		}
+
 		// enterキーでゲームオーバーに遷移する（仮）
 		if (Input.GetKeyDown (KeyCode.Return)) {
 			Transit (eStatus.eGameover);
@@ -621,3 +837,10 @@ public class Game : MonoBehaviour {
 	}
 }
 
+class Tetrimino{
+
+
+	public Tetrimino(){
+	}
+
+}
