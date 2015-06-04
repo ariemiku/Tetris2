@@ -27,20 +27,6 @@ enum eKeyCode{
 	None,
 };
 
-// 色
-/*
-public enum eColor{
-	eRed,
-	eBlue,
-	eLightBlue,
-	eYello,
-	eYelloGreen,
-	ePurple,
-	eOrange,
-	eBlack,
-	None,
-};
-*/
 enum eBlockState{
 	Empty,
 	Uesd,
@@ -48,10 +34,10 @@ enum eBlockState{
 	Using,
 };
 
-class Block{
+class cBlock{
 	GameObject block;
 
-	public Block(){
+	public cBlock(){
 	}
 
 	// キューブを生成する関数
@@ -64,33 +50,7 @@ class Block{
 		block.transform.position = new Vector3 (pos.y, pos.x, 0.0f);
 	}
 
-	// ブロックの色を変える関数
-	/*public void SetColorE(eColor color){
-		Renderer renderer = block.GetComponent<Renderer>();
-		switch (color) {
-		case eColor.eRed:
-			renderer.material = new Material (red);
-			break;
-		case eColor.eBlue:
-			break;
-		case eColor.eLightBlue:
-			break;
-		case eColor.eYello:
-			break;
-		case eColor.eYelloGreen:
-			break;
-		case eColor.ePurple:
-			break;
-		case eColor.eOrange:
-			break;
-		case eColor.eBlack:
-			renderer.material = new Material (black);
-			break;
-		case eColor.None:
-			break;
-		}
-	}*/
-
+	// ブロックの色を設定する関数
 	public void SetColor(Material color){
 		Renderer renderer = block.GetComponent<Renderer>();
 		renderer.material = new Material (color);
@@ -269,40 +229,49 @@ public class Game : MonoBehaviour {
 																{0,0,1,0,0},
 																{0,0,0,0,0}}};
 	private eStatus m_Status;
-	//private eColor m_color;
-	eKeyCode m_KeyCode;
 
 	// マテリアル
-	public Material red;
-	public Material blue;
-	public Material lightBlue;
-	public Material yello;
-	public Material yelloGreen;
-	public Material purple;
-	public Material orange;
-	public Material black;
+	private Material red;
+	private Material blue;
+	private Material lightBlue;
+	private Material yello;
+	private Material yelloGreen;
+	private Material purple;
+	private Material orange;
+	private Material black;
 
-	Block[,] block=new Block[HEIGHT,WIDTH];
+	cBlock[,] block=new cBlock[HEIGHT,WIDTH];
 	eBlockState[,] m_blockState = new eBlockState[HEIGHT, WIDTH];
 
 	eTetriminoType myTetrimonoType;
 	Vector2 myPos;
 	int myTetriminoState=0;
 
-	Block[,] nextTetrimino = new Block[5,5];
+	cBlock[,] nextTetrimino = new cBlock[5,5];
 	eTetriminoType nextTetrimonoType;
 	int m_shiftNum=0;
 
 	public float timer = 0.0f;
 	float downLAndRKeyTime = 0.0f;
 	float downFallKeyTime = 0.0f;
+	float m_slideTime = 0.0f;
 
 	// Use this for initialization
 	void Start () {
+		// マテリアルの取得
+		red = Resources.Load ("Material/red")as Material;
+		blue = Resources.Load ("Material/blue")as Material;
+		lightBlue = Resources.Load ("Material/lightBlue")as Material;
+		yello = Resources.Load ("Material/yello")as Material;
+		yelloGreen = Resources.Load ("Material/yelloGreen")as Material;
+		purple = Resources.Load ("Material/purple")as Material;
+		orange = Resources.Load ("Material/orange")as Material;
+		black = Resources.Load ("Material/black")as Material;
+
 		for (int i=0; i<HEIGHT; i++) {
 			for(int j=0;j<WIDTH;j++){
 				// クラスのインスタンスを初期化する
-				block[i,j] = new Block();
+				block[i,j] = new cBlock();
 
 				// 20*10ブロックの作成
 				Vector2 pos = new Vector2((HEIGHT/2)-i,-(WIDTH/2)+j);
@@ -318,7 +287,7 @@ public class Game : MonoBehaviour {
 		for (int i=0; i<5; i++) {
 			for (int j=0; j<5; j++) {
 				// クラスのインスタンスを初期化する
-				nextTetrimino[i,j] = new Block();
+				nextTetrimino[i,j] = new cBlock();
 
 				nextTetrimino[i,j].CreateBlock();
 			}
@@ -328,7 +297,8 @@ public class Game : MonoBehaviour {
 		DrawNextTetrimino();
 		myPos = new Vector2 (0.0f,0.0f);
 
-		m_KeyCode = eKeyCode.None;
+
+
 		m_Status = eStatus.Tutorial;
 		Transit (m_Status);
 	}
@@ -547,6 +517,52 @@ public class Game : MonoBehaviour {
 				case eTetriminoType.TTetrimino:
 					if(T_Tetrimino[myTetriminoState,i,j]==1 && 
 					   (((int)movedPos.x+j >= WIDTH) || ((int)movedPos.x+j < 0))){
+						return true;
+					}
+					break;
+				}
+			}
+		}
+		return false;
+	}
+
+	// 移動先が移動可能か判定する関数
+	bool CheckGameover(Vector2 movedPos){
+		for (int i=4; i>=0; i--) {
+			for(int j=0;j<5;j++){
+				switch(myTetrimonoType){
+				case eTetriminoType.OTetrimino:
+					if(O_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i < 0){
+						return true;
+					}
+					break;
+				case eTetriminoType.ITetrimino:
+					if(I_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i < 0){
+						return true;
+					}
+					break;
+				case eTetriminoType.STetrimino:
+					if(S_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i < 0){
+						return true;
+					}
+					break;
+				case eTetriminoType.ZTetrimino:
+					if(Z_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i < 0){
+						return true;
+					}
+					break;
+				case eTetriminoType.JTetrimino:
+					if(J_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i < 0){
+						return true;
+					}
+					break;
+				case eTetriminoType.LTetrimino:
+					if(L_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i < 0){
+						return true;
+					}
+					break;
+				case eTetriminoType.TTetrimino:
+					if(T_Tetrimino[myTetriminoState,i,j]==1 && (int)movedPos.y+i < 0){
 						return true;
 					}
 					break;
@@ -867,22 +883,33 @@ public class Game : MonoBehaviour {
 		// 一番下についた時またはブロックが下にあった場合の積む処理
 		if (CheckHit (new Vector2 (myPos.x, myPos.y + 1))) {
 			timer=0.0f;
+			m_slideTime += Time.deltaTime;
 
-			for (int i=4; i>=0; i--) {
-				for(int j=0;j<5;j++){
-					if((int)myPos.y+i < HEIGHT && (int)myPos.y+i >= 0 &&
-					   (int)myPos.x+j < WIDTH  && (int)myPos.x+j >= 0 &&
-					   m_blockState[(int)myPos.y+i,(int)myPos.x+j]==eBlockState.Using){
-						m_blockState[(int)myPos.y+i,(int)myPos.x+j]=eBlockState.Uesd;
-					}
-				}
+			// ゲームオーバーになるか確認する
+			if(CheckGameover(new Vector2 (myPos.x, myPos.y))){
+				// もう積めない場合ゲームオーバーに遷移する
+				Transit (eStatus.Gameover);
 			}
 
-			myTetriminoState=0;
-			myTetrimonoType = nextTetrimonoType;
-			DrawNextTetrimino();
-			// 初期位置に戻す
-			myPos = new Vector2 (3,-4);
+			// ブロックのすべり時間処理
+			if(m_slideTime > 0.5f){
+				for (int i=4; i>=0; i--) {
+					for(int j=0;j<5;j++){
+						if((int)myPos.y+i < HEIGHT && (int)myPos.y+i >= 0 &&
+						   (int)myPos.x+j < WIDTH  && (int)myPos.x+j >= 0 &&
+						   m_blockState[(int)myPos.y+i,(int)myPos.x+j]==eBlockState.Using){
+							m_blockState[(int)myPos.y+i,(int)myPos.x+j]=eBlockState.Uesd;
+						}
+					}
+				}
+
+				myTetriminoState=0;
+				myTetrimonoType = nextTetrimonoType;
+				DrawNextTetrimino();
+				// 初期位置に戻す
+				myPos = new Vector2 (3,-4);
+				m_slideTime = 0.0f;
+			}
 		}
 
 		// RightArrowキーで右へ移動
@@ -923,11 +950,6 @@ public class Game : MonoBehaviour {
 		// Zキーで左回転を行う
 		if (Input.GetKeyDown (KeyCode.Z)) {
 			RotateBlock(eKeyCode.ZKeyCode);
-		}
-
-		// enterキーでゲームオーバーに遷移する（仮）
-		if (Input.GetKeyDown (KeyCode.Return)) {
-			Transit (eStatus.Gameover);
 		}
 	}
 
