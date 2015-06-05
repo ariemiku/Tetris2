@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+using UnityEngine.UI;
+
 // ステータス
 public enum eStatus{
 	Tutorial,
@@ -245,6 +247,7 @@ public class Game : MonoBehaviour {
 	private Material purple;
 	private Material orange;
 	private Material black;
+	private Material white;
 
 	cBlock[,] block=new cBlock[Height,Width];
 	eBlockState[,] m_blockState = new eBlockState[Height, Width];
@@ -263,18 +266,21 @@ public class Game : MonoBehaviour {
 	float downLAndRKeyTime = 0.0f;
 	float downFallKeyTime = 0.0f;
 	float m_slideTime = 0.0f;
+	float m_flashTime = 0.0f;
+	bool m_flash=false;
 
 	// Use this for initialization
 	void Start () {
-		// マテリアルの取得
-		red = Resources.Load ("Material/red")as Material;
-		blue = Resources.Load ("Material/blue")as Material;
-		lightBlue = Resources.Load ("Material/lightBlue")as Material;
-		yello = Resources.Load ("Material/yello")as Material;
-		yelloGreen = Resources.Load ("Material/yelloGreen")as Material;
-		purple = Resources.Load ("Material/purple")as Material;
-		orange = Resources.Load ("Material/orange")as Material;
-		black = Resources.Load ("Material/black")as Material;
+	// マテリアルの取得
+	red = Resources.Load ("Material/red")as Material;
+	blue = Resources.Load ("Material/blue")as Material;
+	lightBlue = Resources.Load ("Material/lightBlue")as Material;
+	yello = Resources.Load ("Material/yello")as Material;
+	yelloGreen = Resources.Load ("Material/yelloGreen")as Material;
+	purple = Resources.Load ("Material/purple")as Material;
+	orange = Resources.Load ("Material/orange")as Material;
+	black = Resources.Load ("Material/black")as Material;
+	white = Resources.Load ("Material/white")as Material;
 
 		for (int i=0; i<Height; i++) {
 			for(int j=0;j<Width;j++){
@@ -865,6 +871,7 @@ public class Game : MonoBehaviour {
 	// そろっているブロックを消す関数
 	void DeleteBlock(int nowPositionY){
 		int lineCount = 0;
+		ArrayList deleteList = new ArrayList ();
 		Material[,] deleteAfterMaterial = new Material[4, Width];
 		eBlockState[,] deleteAfterState = new eBlockState[4, Width];
 		// 初期化
@@ -883,31 +890,100 @@ public class Game : MonoBehaviour {
 				}
 				lineCount+=1;
 			}
+			else{
+				deleteList.Add(nowPositionY-i);
+			}
 		}
 		lineCount = 4 - lineCount;
 
 		// そろっているブロックがある場合　消して必要な分だけ下にずらす
 		if (lineCount != 0) {
-			for (int i=0; i<4; i++) {
-				for (int j=0; j<Width; j++) {
-					m_blockState[(nowPositionY-i),j]=deleteAfterState[3-i,j];
-					block[(nowPositionY-i),j].SetColor(deleteAfterMaterial[3-i,j]);
+			//Flash(nowPositionY,deleteList);
+			Debug.Log(lineCount);
+			// 少し待つ
+			System.Threading.Thread.Sleep(1000);
+			//if(!m_flash){
+				for (int i=0; i<4; i++) {
+					for (int j=0; j<Width; j++) {
+						m_blockState[(nowPositionY-i),j]=deleteAfterState[3-i,j];
+						block[(nowPositionY-i),j].SetColor(deleteAfterMaterial[3-i,j]);
+					}
+				}
+
+				for(int i=nowPositionY-(4-lineCount);i>lineCount;i--){
+					for (int j=0; j<Width; j++) {
+						m_blockState[i,j]=m_blockState[i-1,j];
+						block[i,j].SetColor(block[i-1,j].GetColor());
+					}
+				}
+				for(int i=lineCount;i>=0;i--){
+					for (int j=0; j<Width; j++) {
+						m_blockState[i,j]=eBlockState.Empty;
+						block[i,j].SetColor(black);
+					}
+				}
+			//}
+		}
+	}		
+	Material[,] beforeBlock = new Material[4,Width];
+
+	void Flash(int nowPositionY,ArrayList deleteList){
+		Debug.Log (deleteList.Count);
+
+		if (!m_flash && m_flashTime==0.0f) {
+
+			for(int i=0;i<4;i++){
+				for(int j=0;j<Width;j++){
+					if(nowPositionY-i < Height)
+						beforeBlock[3-i,j] = block[nowPositionY-i,j].GetColor();
 				}
 			}
 
-			for(int i=nowPositionY-(4-lineCount);i>lineCount;i--){
+			for (int i=0; i<deleteList.Count; i++) {
 				for (int j=0; j<Width; j++) {
-					m_blockState[i,j]=m_blockState[i-1,j];
-					block[i,j].SetColor(block[i-1,j].GetColor());
-				}
-			}
-			for(int i=lineCount;i>=0;i--){
-				for (int j=0; j<Width; j++) {
-					m_blockState[i,j]=eBlockState.Empty;
-					block[i,j].SetColor(black);
+					block [(int)deleteList [i], j].SetColor (white);
 				}
 			}
 		}
+
+		m_flashTime += Time.deltaTime;
+		m_flash = true;
+
+		if (m_flashTime > 0.2f) {
+			m_flash=false;
+			for(int i=0;i<4;i++){
+				for(int j=0;j<Width;j++){
+					block[nowPositionY-i,j].SetColor(beforeBlock[3-i,j]);
+				}
+			}
+		}
+		/*
+		m_flash = true;
+
+
+		Material[,] beforeBlock = new Material[4,Width];
+		for(int i=0;i<4;i++){
+			for(int j=0;j<Width;j++){
+				if(nowPositionY-i < Height)
+				beforeBlock[3-i,j] = block[nowPositionY-i,j].GetColor();
+			}
+		}
+
+		if (m_flashTime > 0.6f) {
+			m_flash=false;
+			m_flashTime=0.0f;
+		}
+		else if (m_flashTime >= 0.2f && m_flashTime < 0.4f) {
+			for (int i=0; i<4; i++) {
+				for (int j=0; j<Width; j++) {
+					if(nowPositionY-i < Height)
+					block [nowPositionY - i, j].SetColor (beforeBlock [3 - i, j]);
+				}
+			}
+		}
+		else{
+
+		}*/
 	}
 
 	void StartPlay(eStatus PrevStatus){
@@ -939,7 +1015,7 @@ public class Game : MonoBehaviour {
 		timer += Time.deltaTime;
 
 		// 自然落下処理
-		if (!Input.GetKey (KeyCode.DownArrow) &&
+		if (!m_flash && !Input.GetKey (KeyCode.DownArrow) &&
 		    (timer > 1.0f && !CheckHit (new Vector2 (myPos.x, myPos.y + 1)))) {
 			timer=0.0f;
 			ClearState ();
@@ -977,13 +1053,14 @@ public class Game : MonoBehaviour {
 
 				DeleteBlock(nowPosition);
 
-				// 次のブロックの準備を行う
-				myTetriminoState=0;
-				myTetrimonoType = nextTetrimonoType;
-				DrawNextTetrimino();
-				// 初期位置に戻す
-				myPos = new Vector2 (3,-4);
-				m_slideTime = 0.0f;
+					// 次のブロックの準備を行う
+					myTetriminoState=0;
+					myTetrimonoType = nextTetrimonoType;
+					DrawNextTetrimino();
+					// 初期位置に戻す
+					myPos = new Vector2 (3,-4);
+					m_slideTime = 0.0f;
+					m_flashTime=0.0f;
 			}
 		}
 
