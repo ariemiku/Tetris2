@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
-
 using UnityEngine.UI;
+using System.Collections;
 
 // ステータス
 public enum eStatus{
@@ -249,6 +248,8 @@ public class Game : MonoBehaviour {
 	private Material black;
 	private Material white;
 
+	Text m_scoreText;
+
 	cBlock[,] block=new cBlock[Height,Width];
 	eBlockState[,] m_blockState = new eBlockState[Height, Width];
 
@@ -265,18 +266,24 @@ public class Game : MonoBehaviour {
 	float downFallKeyTime = 0.0f;
 	float m_slideTime = 0.0f;
 
+	private int m_score = 0;
+	private int m_downPoint=0;
+	private int m_deleteLineNumber=0;
+
 	// Use this for initialization
 	void Start () {
-	// マテリアルの取得
-	red = Resources.Load ("Material/red")as Material;
-	blue = Resources.Load ("Material/blue")as Material;
-	lightBlue = Resources.Load ("Material/lightBlue")as Material;
-	yello = Resources.Load ("Material/yello")as Material;
-	yelloGreen = Resources.Load ("Material/yelloGreen")as Material;
-	purple = Resources.Load ("Material/purple")as Material;
-	orange = Resources.Load ("Material/orange")as Material;
-	black = Resources.Load ("Material/black")as Material;
-	white = Resources.Load ("Material/white")as Material;
+		// マテリアルの取得
+		red = Resources.Load ("Material/red")as Material;
+		blue = Resources.Load ("Material/blue")as Material;
+		lightBlue = Resources.Load ("Material/lightBlue")as Material;
+		yello = Resources.Load ("Material/yello")as Material;
+		yelloGreen = Resources.Load ("Material/yelloGreen")as Material;
+		purple = Resources.Load ("Material/purple")as Material;
+		orange = Resources.Load ("Material/orange")as Material;
+		black = Resources.Load ("Material/black")as Material;
+		white = Resources.Load ("Material/white")as Material;
+
+		m_scoreText = GameObject.Find ("Canvas/ScoreText").GetComponent<Text> ();
 
 		for (int i=0; i<Height; i++) {
 			for(int j=0;j<Width;j++){
@@ -895,11 +902,14 @@ public class Game : MonoBehaviour {
 		// そろっているブロックがある場合　消して必要な分だけ下にずらす
 		if (lineCount != 0) {
 			//Flash(nowPositionY,deleteList);
-			Debug.Log(lineCount);
+			//Debug.Log(lineCount);
+
 			// 少し待つ
 			System.Threading.Thread.Sleep(1000);
 			//if(!m_flash){
 			bool downFlag=true;
+			
+			m_deleteLineNumber = lineCount;
 			for (int i=0; i<4; i++) {
 				if((nowPositionY-i) >= 0){
 					for (int j=0; j<Width; j++) {
@@ -1007,6 +1017,34 @@ public class Game : MonoBehaviour {
 		SetBlock();
 	}
 
+	void CalculateScore(){
+		if (m_downPoint == 0) {
+			m_score += 1;
+		}
+		else {
+			m_score += m_downPoint;
+		}
+
+		switch (m_deleteLineNumber) {
+		case 0:
+			break;
+		case 1:
+			m_score += 40;
+			break;
+		case 2:
+			m_score += 100;
+			break;
+		case 3:
+			m_score += 300;
+			break;
+		case 4:
+			m_score += 1200;
+			break;
+		}
+
+		m_scoreText.text = "スコア\n"+m_score.ToString();
+	}
+
 	void StartPlay(eStatus PrevStatus){
 		// 代わった時に1回しかやらないことをする
 		Debug.Log ("Play");
@@ -1014,6 +1052,7 @@ public class Game : MonoBehaviour {
 		// 自分の初期位置（仮）
 		myPos = new Vector2 (3,-4);
 		SetBlock();
+		m_scoreText.text = "スコア\n"+m_score.ToString();
 	}
 
 	void StartGameover(eStatus PrevStatus){
@@ -1072,6 +1111,7 @@ public class Game : MonoBehaviour {
 
 					DeleteBlock (nowPosition);
 
+					CalculateScore();
 					// 次のブロックの準備を行う
 					myTetriminoState = 0;
 					myTetriminoType = nextTetrimonoType;
@@ -1079,6 +1119,8 @@ public class Game : MonoBehaviour {
 					// 初期位置に戻す
 					myPos = new Vector2 (3, -4);
 					m_slideTime = 0.0f;
+					m_downPoint=0;
+					m_deleteLineNumber=0;
 				}
 			}
 		}
@@ -1111,6 +1153,7 @@ public class Game : MonoBehaviour {
 			if(downFallKeyTime >= 0.1f){
 				MoveBlock(eKeyCode.DownArrow);
 				downFallKeyTime = 0.0f;
+				m_downPoint+=1;
 			}
 		}
 
