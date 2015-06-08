@@ -241,6 +241,8 @@ public class Game : MonoBehaviour {
 
 	Text m_scoreText;
 	Text m_levelText;
+	Text m_menuText;
+	Text m_tutorialText;
 	private int m_score = 0;
 	private int m_downPoint=0;
 	private int m_level=0;
@@ -267,6 +269,8 @@ public class Game : MonoBehaviour {
 		// テキスト
 		m_scoreText = GameObject.Find ("Canvas/ScoreText").GetComponent<Text> ();
 		m_levelText =  GameObject.Find ("Canvas/LevelText").GetComponent<Text> ();
+		m_menuText = GameObject.Find ("Canvas/MenuText").GetComponent<Text>();
+		m_tutorialText = GameObject.Find ("Canvas/TutorialText").GetComponent<Text> ();
 
 		// 全体のゲームブロックの生成
 		for (int i=0; i<Height; i++) {
@@ -294,7 +298,7 @@ public class Game : MonoBehaviour {
 		for (int i=0; i<5; i++) {
 			for (int j=0; j<5; j++) {
 				m_nextBlock[i,j] = GameObject.CreatePrimitive (PrimitiveType.Cube);
-				Vector2 pos = new Vector2(5-i,6+j);
+				Vector2 pos = new Vector2(5-i,7+j);
 				m_nextBlock[i,j].transform.position = new Vector3 (pos.y, pos.x, 0.0f);
 			}
 		}
@@ -340,14 +344,27 @@ public class Game : MonoBehaviour {
 	void StartTutorial(eStatus PrevStatus){
 		// 代わった時に1回しかやらないことをする
 		Debug.Log ("Tutorial");
+		m_menuText.text = "Tutorial\npush  Enter";
+		m_tutorialText.text = "操作説明\n\n←→キー：左右の移動\n↓キー：落下速度の加速操作\nZキー：左回転\nXキー：右回転";
 	}
 
 	void StartPlay(eStatus PrevStatus){
 		// 代わった時に1回しかやらないことをする
 		Debug.Log ("Play");
 
+		m_menuText.text = "";
+		m_tutorialText.text = "";
+
+		m_myTetriminoType = m_nextTetrimonoType;
+		SetTetrimino (m_myTetrimino, m_myTetriminoType, m_myTetriminoState);
 		// 自分の初期位置
 		m_myPosition = new Vector2 (3,-4);
+
+		// 次のブロックの準備を行う
+		m_nextTetrimonoType = SetTetriminoType();
+		SetTetrimino (m_nextTetrimino, m_nextTetrimonoType, 0);
+		SetColor (m_nextBlock, m_nextTetrimino, m_nextTetrimonoType);
+
 		SetBlock ();
 		m_scoreText.text = "スコア\n"+m_score.ToString();
 		m_level = 1;
@@ -357,6 +374,7 @@ public class Game : MonoBehaviour {
 	void StartGameover(eStatus PrevStatus){
 		// 代わった時に1回しかやらないことをする
 		Debug.Log ("Gameover");
+		m_menuText.text = "Gameover\npush  Enter";
 	}
 
 	// tutorial状態の更新関数
@@ -402,9 +420,12 @@ public class Game : MonoBehaviour {
 				SetBlock ();
 			}
 
-
 			// RightArrowキーで右へ移動
-			if (Input.GetKey (KeyCode.RightArrow) && !Input.GetKey (KeyCode.LeftArrow)) {
+			if (Input.GetKeyDown (KeyCode.RightArrow)){
+				MoveBlock(eKeyCode.RightArrow);
+				m_downLAndRKeyTime = 0.0f;
+			}
+			else if (Input.GetKey (KeyCode.RightArrow) && !Input.GetKey (KeyCode.LeftArrow)) {
 				m_downLAndRKeyTime += Time.deltaTime;
 				
 				if(m_downLAndRKeyTime >= 0.1f){
@@ -414,6 +435,10 @@ public class Game : MonoBehaviour {
 			}
 			
 			// LeftArrowキーで左へ移動
+			if (Input.GetKeyDown (KeyCode.LeftArrow)){
+				MoveBlock(eKeyCode.LeftArrow);
+				m_downLAndRKeyTime = 0.0f;
+			}
 			if (Input.GetKey (KeyCode.LeftArrow) && !Input.GetKey (KeyCode.RightArrow)) {
 				m_downLAndRKeyTime += Time.deltaTime;
 				
@@ -533,6 +558,7 @@ public class Game : MonoBehaviour {
 		}
 	}
 
+	// いくつかのブロックの色をまとめて設定する関数
 	void SetColor(GameObject[,] block, int[,] tetrimino,eTetriminoType type){
 		for (int i=0; i<5; i++) {
 			for(int j=0;j<5;j++){
@@ -586,7 +612,8 @@ public class Game : MonoBehaviour {
 		}
 	}
 
-	void SetColor2(GameObject block, int tetrimino,eTetriminoType type){
+	// ブロック1個の色を設定する関数
+	void SetColorSimple(GameObject block, int tetrimino,eTetriminoType type){
 		Renderer renderer = block.GetComponent<Renderer>();
 		switch(type){
 			case eTetriminoType.OTetrimino:
@@ -640,7 +667,7 @@ public class Game : MonoBehaviour {
 				if((int)m_myPosition.y+i >= 0 && (int)m_myPosition.y+i < Height
 				   && ((int)m_myPosition.x+j >= 0 && (int)m_myPosition.x+j < Width) &&
 				   m_blockState[(int)m_myPosition.y+i,(int)m_myPosition.x+j]!=eBlockState.Used){
-					SetColor2(m_block[(int)m_myPosition.y+i,(int)m_myPosition.x+j],
+					SetColorSimple(m_block[(int)m_myPosition.y+i,(int)m_myPosition.x+j],
 					          m_myTetrimino[i,j],
 					          m_myTetriminoType);
 					if(m_myTetrimino[i,j]==1)
@@ -1008,6 +1035,7 @@ public class Game : MonoBehaviour {
 		SetBlock();
 	}
 
+	// スコアを計算する関数
 	void CalculateScore(){
 		if (m_downPoint == 0) {
 			m_score += 1;
