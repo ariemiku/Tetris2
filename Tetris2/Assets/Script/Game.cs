@@ -218,6 +218,7 @@ public class Game : MonoBehaviour {
 	private Material m_orange;
 	private Material m_black;
 	private Material m_white;
+	private Material m_ghost;
 
 	// 全体のゲームブロック
 	GameObject[,] m_block=new GameObject[Height,Width];
@@ -237,6 +238,7 @@ public class Game : MonoBehaviour {
 	int m_myExistUnderPositionY=0;
 
 	bool m_deleteFlag = false;
+	bool deleteEndFlag = true;
 	private int m_deleteLineNumber=0;
 
 	Text m_scoreText;
@@ -252,6 +254,10 @@ public class Game : MonoBehaviour {
 	float m_slideTime = 0.0f;
 	float m_downLAndRKeyTime = 0.0f;
 	float m_downFallKeyTime = 0.0f;
+	float m_flashTime = 0.0f;
+
+	Material[,] m_deleteAfterMaterial = new Material[4, Width];
+	Material[,] m_deleteBeforeMaterial = new Material[4, Width];
 
 	// Use this for initialization
 	void Start () {
@@ -265,6 +271,7 @@ public class Game : MonoBehaviour {
 		m_orange = Resources.Load ("Material/orange")as Material;
 		m_black = Resources.Load ("Material/black")as Material;
 		m_white = Resources.Load ("Material/white")as Material;
+		m_ghost = Resources.Load ("Material/ghost 1")as Material;
 
 		// テキスト
 		m_scoreText = GameObject.Find ("Canvas/ScoreText").GetComponent<Text> ();
@@ -366,9 +373,9 @@ public class Game : MonoBehaviour {
 		SetColor (m_nextBlock, m_nextTetrimino, m_nextTetrimonoType);
 
 		SetBlock ();
-		m_scoreText.text = "スコア\n"+m_score.ToString();
+		m_scoreText.text = "Score\n"+m_score.ToString();
 		m_level = 1;
-		m_levelText.text = "レベル\n" + m_level.ToString ();
+		m_levelText.text = "Level\n" + m_level.ToString ();
 	}
 	
 	void StartGameover(eStatus PrevStatus){
@@ -473,33 +480,38 @@ public class Game : MonoBehaviour {
 		}
 		else {
 			DeleteBlock (m_myExistUnderPositionY);
-			CalculateScore();
 
-			// 操作ブロックに次のものをセットする
-			m_myTetriminoState = 0;
-			m_myTetriminoType = m_nextTetrimonoType;
-			SetTetrimino (m_myTetrimino, m_myTetriminoType, m_myTetriminoState);
-			// 初期位置に戻す
-			m_myPosition = new Vector2 (3, -4);
-			// 次のブロックの準備を行う
-			m_nextTetrimonoType = SetTetriminoType();
-			SetTetrimino (m_nextTetrimino, m_nextTetrimonoType, 0);
-			SetColor (m_nextBlock, m_nextTetrimino, m_nextTetrimonoType);
+			if(deleteEndFlag == true){
+				CalculateScore();
 
-			m_slideTime = 0.0f;
-			m_downPoint=0;
-			m_level+=m_deleteLineNumber;
-			m_deleteLineNumber=0;
-			m_level+=1;
-			m_levelText.text = "レベル\n" + m_level.ToString ();
-			// レベルに伴ったスピードアップ
-			if (m_level % 10 == 0) {
-				m_fallSpeed -= 0.1f;
+				// 操作ブロックに次のものをセットする
+				m_myTetriminoState = 0;
+				m_myTetriminoType = m_nextTetrimonoType;
+				SetTetrimino (m_myTetrimino, m_myTetriminoType, m_myTetriminoState);
+				// 初期位置に戻す
+				m_myPosition = new Vector2 (3, -4);
+				// 次のブロックの準備を行う
+				m_nextTetrimonoType = SetTetriminoType();
+				SetTetrimino (m_nextTetrimino, m_nextTetrimonoType, 0);
+				SetColor (m_nextBlock, m_nextTetrimino, m_nextTetrimonoType);
+
+				m_slideTime = 0.0f;
+				m_downPoint=0;
+				m_level+=m_deleteLineNumber;
+				m_deleteLineNumber=0;
+				m_level+=1;
+				m_levelText.text = "Level\n" + m_level.ToString ();
+				// レベルに伴ったスピードアップ
+				if (m_level % 20 == 0) {
+					m_fallSpeed -= 0.1f;
+				}
+				if (m_fallSpeed < 0.05f) {
+					m_fallSpeed = 0.05f;
+				}
+				m_deleteFlag=false;
+				m_flashTime = 0.0f;
+				DrawBlack();
 			}
-			if (m_fallSpeed < 0.05f) {
-				m_fallSpeed = 0.05f;
-			}
-			m_deleteFlag=false;
 		}
 	}
 
@@ -511,7 +523,6 @@ public class Game : MonoBehaviour {
 			Application.LoadLevel("Title");
 		}
 	}
-	
 
 	// ランダムにテトリミノをセットする関数
 	eTetriminoType SetTetriminoType(){
@@ -520,6 +531,7 @@ public class Game : MonoBehaviour {
 		return (eTetriminoType)type;
 	}
 
+	// テトリミノのタイプを設定する関数
 	void SetTetrimino(int[,] tetrimino,eTetriminoType type,int state){
 		for (int i=0; i<5; i++) {
 			for(int j=0;j<5;j++){
@@ -826,6 +838,7 @@ public class Game : MonoBehaviour {
 			}
 		}
 		else {
+			RotateCheck(m_myPosition);
 			// 回転すると当たってしまうが、ずらした場合に回転できるか調べる
 			SetShiftNum();
 			if(!CheckHit (new Vector2(m_myPosition.x-m_shiftNum,m_myPosition.y))){
@@ -919,11 +932,41 @@ public class Game : MonoBehaviour {
 		}
 		return true;
 	}
+
+	int CountDeleteBlock(int nowPositionY){
+		int lineCount = 0;
+
+		for (int i=0; i<4; i++) {
+			if(CheckDeleteLine(nowPositionY-i)){
+				lineCount+=1;
+			}
+		}
+
+		return lineCount;
+	}
+
+	void FlashBlock(int nowPositionY){
+		Renderer renderer;
+
+		for (int i=0; i<4; i++) {
+			if(CheckDeleteLine(nowPositionY-i)){
+				for(int j=0;j<Width;j++){
+					renderer = m_block[nowPositionY-i,j].GetComponent<Renderer>();
+					m_deleteAfterMaterial[3-i,j] = renderer.material;
+					renderer.material = m_white;
+				}
+			}
+		}
+
+		m_flashTime += Time.deltaTime;
+
+		if (m_flashTime >= 0.5f)
+			m_deleteFlag = false;
+	}
 	
 	// そろっているブロックを消す関数
 	void DeleteBlock(int nowPositionY){	
 		int lineCount = 0;
-		//ArrayList deleteList = new ArrayList ();
 		Material[,] deleteAfterMaterial = new Material[4, Width];
 		eBlockState[,] deleteAfterState = new eBlockState[4, Width];
 		Renderer renderer;
@@ -934,7 +977,8 @@ public class Game : MonoBehaviour {
 				deleteAfterMaterial[i,j] = m_black;
 			}
 		}
-		
+
+		// 消した後のブロックを生成していく
 		for (int i=0; i<4; i++) {
 			if(!CheckDeleteLine(nowPositionY-i)){
 				for(int j=0;j<Width;j++){
@@ -944,56 +988,59 @@ public class Game : MonoBehaviour {
 				}
 				lineCount+=1;
 			}
-			else{
-				//deleteList.Add(nowPositionY-i);
-			}
 		}
-		if(lineCount!=0)
-			lineCount = 4 - lineCount;
-		
-		// そろっているブロックがある場合　消して必要な分だけ下にずらす
-		if (lineCount != 0) {
 
-			// 少し待つ
-			System.Threading.Thread.Sleep(1000);
-			bool downFlag=true;
+		// そろっているブロックがある場合
+		if (lineCount != 4) {
+			m_deleteFlag = true;
+			deleteEndFlag = false;
+
+			FlashBlock (nowPositionY);
+			if (m_deleteFlag == false) {
+				lineCount = 4 - lineCount;
+
+
+				// 少し待つ
+				//System.Threading.Thread.Sleep (1000);
+				bool downFlag = true;
 			
-			m_deleteLineNumber = lineCount;
-			for (int i=0; i<4; i++) {
-				if((nowPositionY-i) >= 0){
-					for (int j=0; j<Width; j++) {
-						m_blockState[(nowPositionY-i),j]=deleteAfterState[3-i,j];
-						renderer = m_block[nowPositionY-i,j].GetComponent<Renderer>();
-						renderer.material = deleteAfterMaterial[3-i,j];
+				m_deleteLineNumber = lineCount;
+				for (int i=0; i<4; i++) {
+					if ((nowPositionY - i) >= 0) {
+						for (int j=0; j<Width; j++) {
+							m_blockState [(nowPositionY - i), j] = deleteAfterState [3 - i, j];
+							renderer = m_block [nowPositionY - i, j].GetComponent<Renderer> ();
+							renderer.material = deleteAfterMaterial [3 - i, j];
+						}
+					} else {
+						downFlag = false;
 					}
 				}
-				else{
-					downFlag = false;
-				}
-			}
-			
-			for(int i=nowPositionY-(4-lineCount);i>lineCount;i--){
-				if(i>=0){
-					for (int j=0; j<Width; j++) {
-						m_blockState[i,j]=m_blockState[i-1,j];
-						renderer = m_block[i,j].GetComponent<Renderer>();
-						Renderer renderer2 = m_block[i-1,j].GetComponent<Renderer>(); 
-						renderer.material = renderer2.material;
+
+				for (int i=nowPositionY-(4-lineCount); i>lineCount; i--) {
+					if (i >= 0) {
+						for (int j=0; j<Width; j++) {
+							m_blockState [i, j] = m_blockState [i - lineCount, j];
+							renderer = m_block [i, j].GetComponent<Renderer> ();
+							Renderer renderer2 = m_block [i - lineCount, j].GetComponent<Renderer> (); 
+							renderer.material = renderer2.material;
+						}
+					} else {
+						downFlag = false;
 					}
 				}
-				else{
-					downFlag=false;
-				}
-			}
 			
-			if(downFlag){
-				for(int i=lineCount;i>=0;i--){
-					for (int j=0; j<Width; j++) {
-						m_blockState[i,j]=eBlockState.Empty;
-						renderer = m_block[i,j].GetComponent<Renderer>();
-						renderer.material = m_black;
+				if (downFlag) {
+					for (int i=lineCount; i>=0; i--) {
+						for (int j=0; j<Width; j++) {
+							m_blockState [i, j] = eBlockState.Empty;
+							renderer = m_block [i, j].GetComponent<Renderer> ();
+							renderer.material = m_black;
+						}
 					}
 				}
+
+				deleteEndFlag = true;
 			}
 		}
 	}
@@ -1028,14 +1075,14 @@ public class Game : MonoBehaviour {
 				   m_blockState[((int)m_myPosition.y+num)-i,(int)m_myPosition.x+j] != eBlockState.Used){
 					m_blockState[((int)m_myPosition.y+num)-i,(int)m_myPosition.x+j] = eBlockState.Ghost;
 					renderer = m_block[((int)m_myPosition.y+num)-i,(int)m_myPosition.x+j].GetComponent<Renderer>();
-					renderer.material = m_white;
+					renderer.material = m_ghost;
 				}
 			}
 		}	
 		SetBlock();
 	}
 
-	// スコアを計算する関数
+	// スコアを計算 表示する関数
 	void CalculateScore(){
 		if (m_downPoint == 0) {
 			m_score += 1;
@@ -1063,7 +1110,6 @@ public class Game : MonoBehaviour {
 			m_score += 1200;
 			break;
 		}
-		
-		m_scoreText.text = "スコア\n"+m_score.ToString();
+		m_scoreText.text = "Score\n"+m_score.ToString();
 	}
 }
