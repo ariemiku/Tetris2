@@ -381,7 +381,7 @@ public class Game : MonoBehaviour {
 	void StartGameover(eStatus PrevStatus){
 		// 代わった時に1回しかやらないことをする
 		Debug.Log ("Gameover");
-		m_menuText.text = "Gameover\npush  Enter";
+		m_menuText.text = "Gameover\npush  Enter\n\nYour score:"+m_score.ToString();
 	}
 	
 	// tutorial状態の更新関数
